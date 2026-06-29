@@ -5,6 +5,7 @@ class Rule:
             'spawn' : 1,
             'stay' : 100
         }
+        self.cellType = []
 
     def execute(self, cell, simulation) -> bool:
         return False

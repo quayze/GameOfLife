@@ -13,6 +13,7 @@ class ActionsManager:
             'Left'          : ('k', 'held', pygame.K_q),
             'Right'         : ('k', 'held', pygame.K_d),
             'Pause'         : ('k', 'pressed', pygame.K_SPACE),
+            'Step'          : ('k', 'pressed', pygame.K_RIGHT),
             'SpeedUp'       : ('k', 'pressed', pygame.K_UP),
             'SpeedDown'     : ('k', 'pressed', pygame.K_DOWN)
         }

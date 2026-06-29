@@ -70,7 +70,7 @@ class Game:
         
             resized_screen = pygame.transform.scale(self.screen, (window_width, window_height))
             self.display.blit(resized_screen, (0, 0))
-            pygame.display.set_caption(str(int(self.clock.get_fps())) + ' ' + 'SIM UPDATES : ' + str(self.simulation.speed) + ' ' + str(self.camera.zoom) + ' ' + str((self.camera.PosX, self.camera.PosY)))
+            pygame.display.set_caption('FPS : ' + str(int(self.clock.get_fps())) + ' UPDATES : ' + str(self.simulation.speed) + ' ZOOM : ' + str(self.camera.zoom) + ' PAUSED : ' + str(not self.simulation.run) )
             pygame.display.flip()
 
 
@@ -94,6 +94,9 @@ class Game:
                 self.simulation.Resume()
             else:
                 self.simulation.Pause()
+                
+        if self.actionsManager.getAction('Step') and self.simulation.isPaused():
+            self.simulation.UpdateSimulationStep()
 
         scroll = self.mouseHandler.getScroll()
         if scroll > 0:  

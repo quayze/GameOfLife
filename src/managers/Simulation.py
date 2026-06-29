@@ -1,6 +1,7 @@
 from src.rules.rule import Rule
 from src.rules.live import Live
 from src.rules.die import Die
+from src.utils.librairies import *
 
 class Simulation:
     def __init__(self):
@@ -50,14 +51,8 @@ class Simulation:
     
     
     def PlaceSquare(self, position : tuple):
-        if position not in self.grid:
+        if position not in self.grid or not self.grid[position]:
             self.grid[position] = 1
-
-            return True
-        
-        if not self.grid[position]:
-            self.grid[position] = 1
-
             return True
         
         return False
@@ -68,7 +63,7 @@ class Simulation:
             return False
         
         if self.grid[position]:
-            self.grid.pop(position)
+            self.grid[position] = 0
             return True
         
         return False
@@ -81,8 +76,8 @@ class Simulation:
 
     def GetActiveCells(self):
         activeCells = set()
-        for cell, alive in self.grid.items():
-            if not alive:
+        for cell, type in self.grid.items():
+            if not type:
                 continue
             activeCells.add(cell)
             for neighborCell in self.getCellNeighbors(cell):

@@ -21,26 +21,34 @@ class Camera:
     
 
     def Render(self, screen):
-        for cell, alive in self.sim.grid.items():
-            if alive:
-                pygame.draw.polygon(
-                    screen,
-                    (255, 255, 255),
-                    [
-                        (cell[0] * self.zoom - self.PosX, 
-                        cell[1] * self.zoom  - self.PosY),             # Topleft
+        minX, maxX, minY, maxY = self.getBorders()
 
-                        (cell[0] * self.zoom + self.zoom  - self.PosX, 
-                        cell[1] * self.zoom  - self.PosY),             # Topright
+        for cell, type in self.sim.grid.items():
+            if type:
+                if minX <= cell[0] <= maxX and minY <= cell[1] <= maxY:
+                    pygame.draw.polygon(
+                        screen,
+                        COLORS[type],
+                        [
+                            (cell[0] * self.zoom - self.PosX, 
+                            cell[1] * self.zoom  - self.PosY),             # Topleft
 
-                        (cell[0] * self.zoom + self.zoom - self.PosX, 
-                        cell[1] * self.zoom + self.zoom  - self.PosY), # Bottomright
+                            (cell[0] * self.zoom + self.zoom  - self.PosX, 
+                            cell[1] * self.zoom  - self.PosY),             # Topright
 
-                        (cell[0] * self.zoom - self.PosX, 
-                        cell[1] * self.zoom + self.zoom - self.PosY)  # Bottomleft
-                    ]
-                )
+                            (cell[0] * self.zoom + self.zoom - self.PosX, 
+                            cell[1] * self.zoom + self.zoom  - self.PosY), # Bottomright
+
+                            (cell[0] * self.zoom - self.PosX, 
+                            cell[1] * self.zoom + self.zoom - self.PosY)  # Bottomleft
+                        ]
+                    )
         self.DrawMouse(screen)
+
+    def getBorders(self):
+        return int(self.PosX // self.zoom), int((self.PosX + 2*self.halfWidth) // self.zoom), \
+               int(self.PosY // self.zoom),  int((self.PosY + 2*self.halfHeight) // self.zoom)
+        # MinX MaxX, MinY, MaxY
         
     def DrawMouse(self, screen):
         mouseCellPos = self.mouse.getGridPosition(self.zoom, self.zoom)
