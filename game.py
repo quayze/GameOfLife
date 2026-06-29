@@ -94,7 +94,7 @@ class Game:
                 self.simulation.Resume()
             else:
                 self.simulation.Pause()
-                
+
         if self.actionsManager.getAction('Step') and self.simulation.isPaused():
             self.simulation.UpdateSimulationStep()
 
@@ -132,6 +132,7 @@ class Game:
 
 
     def quit(self):
+        print(self.simulation.grid)
         pygame.quit()
         sys.exit()
 

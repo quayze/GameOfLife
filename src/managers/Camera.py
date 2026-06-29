@@ -24,7 +24,6 @@ class Camera:
         minX, maxX, minY, maxY = self.getBorders()
 
         for cell, type in self.sim.grid.items():
-            if type:
                 if minX <= cell[0] <= maxX and minY <= cell[1] <= maxY:
                     pygame.draw.polygon(
                         screen,

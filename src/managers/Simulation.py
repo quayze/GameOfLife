@@ -19,7 +19,49 @@ class Simulation:
         self.NextPlacing = set()
         self.NextDeleting = set()
 
+        self.StartNextStep()
+    
     def Update(self, dt):
+        if not self.run:
+            return
+        
+        self.accumulator += dt
+        if dt < self.fixedDeltaTime:
+            percentage = dt/self.fixedDeltaTime
+            updates = int(self.cellsToProcess * percentage) + 1
+            self.UpdatePartialStep(min(self.cellsToProcess - 1, self.lastProcessed + updates))
+
+        while self.accumulator > self.fixedDeltaTime:
+            self.UpdatePartialStep(self.cellsToProcess - 1)
+            self.StartNextStep()
+            self.accumulator -= self.fixedDeltaTime
+
+    def StartNextStep(self):
+        self.lastProcessed = -1
+        self.activeCells = list(self.GetActiveCells())
+        self.cellsToProcess = len(self.activeCells)
+        self.UpdatePlacementsDeletions()
+
+    def UpdatePartialStep(self, end):
+        if end <= self.lastProcessed:
+            return
+        i = self.lastProcessed
+        while i < end:
+            i = i + 1
+            cell = self.activeCells[i]
+            for rule in self.rules:
+                result = rule.execute(cell, self)
+                if result == 0:
+                    self.NextDeleting.add(cell)
+                elif result == 1:
+                    self.NextPlacing.add(cell)
+
+        self.lastProcessed = i
+
+
+
+
+    def ClassicUpdate(self, dt):
         if not self.run:
             return
         
@@ -51,7 +93,7 @@ class Simulation:
     
     
     def PlaceSquare(self, position : tuple):
-        if position not in self.grid or not self.grid[position]:
+        if position not in self.grid : #or not self.grid[position]:
             self.grid[position] = 1
             return True
         
@@ -62,11 +104,8 @@ class Simulation:
         if position not in self.grid:
             return False
         
-        if self.grid[position]:
-            self.grid[position] = 0
-            return True
-        
-        return False
+        self.grid.pop(position)
+        return True
         
 
     def FlipSquare(self, position : tuple):
@@ -76,9 +115,7 @@ class Simulation:
 
     def GetActiveCells(self):
         activeCells = set()
-        for cell, type in self.grid.items():
-            if not type:
-                continue
+        for cell in self.grid.keys():
             activeCells.add(cell)
             for neighborCell in self.getCellNeighbors(cell):
                 activeCells.add(neighborCell)
@@ -104,9 +141,10 @@ class Simulation:
         
 
     def isAlive(self, position):
-        if position in self.grid:
-            return self.grid[position] != 0
-        return False
+        return position in self.grid
+        # if position in self.grid:
+        #    return self.grid[position] != 0
+        # return False
         
     def changeSpeed(self, speed):
         if speed != self.speed:
@@ -128,6 +166,11 @@ class Simulation:
     def isPaused(self):
         return self.run == False
     
+    
+        
+        
+
+
 """
 cells = {
 (0, 1) : 0, (4, 1) : 1, (1, 1) : 1, (0, 2) : 1,
