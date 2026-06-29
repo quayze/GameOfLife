@@ -70,7 +70,8 @@ class Game:
         
             resized_screen = pygame.transform.scale(self.screen, (window_width, window_height))
             self.display.blit(resized_screen, (0, 0))
-            pygame.display.set_caption('FPS : ' + str(int(self.clock.get_fps())) + ' UPDATES : ' + str(self.simulation.speed) + ' ZOOM : ' + str(self.camera.zoom) + ' PAUSED : ' + str(not self.simulation.run) )
+            pygame.display.set_caption('FPS : ' + str(int(self.clock.get_fps())) + ' UPDATES : ' + str(self.simulation.speed) + ' ZOOM : ' + str(self.camera.zoom) + ' PAUSED : ' \
+                                       + str(not self.simulation.run) + '   [CURRENTLY PROCESSING : ' + str(self.simulation.lastProcessed) + '/'+str(self.simulation.cellsToProcess) + ']')
             pygame.display.flip()
 
 
@@ -81,7 +82,10 @@ class Game:
             self.simulation.FlipSquare(self.mouseHandler.getGridPosition(self.camera.zoom, self.camera.zoom))
 
         if self.actionsManager.getAction('MultiFlipCell'):
-            self.simulation.FlipSquare(self.mouseHandler.getGridPosition(self.camera.zoom, self.camera.zoom))
+            pos = self.mouseHandler.getGridPosition(self.camera.zoom, self.camera.zoom)
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    self.simulation.FlipSquare((pos[0] + i, pos[1] + j))
 
         if self.actionsManager.getAction('SpeedUp'):
             self.simulation.speedUp(1)
@@ -132,7 +136,6 @@ class Game:
 
 
     def quit(self):
-        print(self.simulation.grid)
         pygame.quit()
         sys.exit()
 

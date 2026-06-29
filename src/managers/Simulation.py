@@ -25,12 +25,13 @@ class Simulation:
         if not self.run:
             return
         
-        self.accumulator += dt
-        if dt < self.fixedDeltaTime:
-            percentage = dt/self.fixedDeltaTime
-            updates = int(self.cellsToProcess * percentage) + 1
+        diff = self.fixedDeltaTime - self.accumulator
+        if dt < diff:
+            percentage = dt/diff
+            updates = int((self.cellsToProcess - self.lastProcessed) * percentage) + 1
             self.UpdatePartialStep(min(self.cellsToProcess - 1, self.lastProcessed + updates))
 
+        self.accumulator += dt
         while self.accumulator > self.fixedDeltaTime:
             self.UpdatePartialStep(self.cellsToProcess - 1)
             self.StartNextStep()
@@ -123,7 +124,7 @@ class Simulation:
 
 
     def getCellNeighbors(self, position):
-        neighbors = [
+        return (
             (position[0] - 1, position[1] - 1), # Topleft
             (position[0] + 1, position[1] + 1), # Bottomright
             (position[0] + 1, position[1] - 1), # Topright
@@ -132,19 +133,18 @@ class Simulation:
             (position[0] + 1, position[1]), # Right
             (position[0], position[1] - 1), # Top
             (position[0], position[1] + 1), # Bottom
-            ]
-        return neighbors
+        )
     
     def getAliveNeighbors(self, position):
         neighbors = self.getCellNeighbors(position)
         return [c for c in neighbors if self.isAlive(c)]
-        
+    
+    def countAliveNeighbors(self, position):
+        neighbors = self.getCellNeighbors(position)
+        return sum(self.isAlive(c) for c in neighbors)    
 
     def isAlive(self, position):
         return position in self.grid
-        # if position in self.grid:
-        #    return self.grid[position] != 0
-        # return False
         
     def changeSpeed(self, speed):
         if speed != self.speed:
@@ -155,7 +155,7 @@ class Simulation:
         self.changeSpeed(self.speed + value)
 
     def speedDown(self, value):
-        self.changeSpeed(max(self.speed - value, 0.1))
+        self.changeSpeed(max(self.speed - value, 0.01))
 
     def Pause(self):
         self.run = False
