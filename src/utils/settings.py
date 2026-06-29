@@ -1,0 +1,10 @@
+WIDTH = 1920
+HEIGHT = 1080
+CENTER_X = WIDTH // 2
+CENTER_Y = HEIGHT // 2
+GRID_OFFSET = 0.7
+
+
+class CameraSettings:
+    MAXZOOM = 5000
+    MINZOOM = 0.01
