@@ -5,7 +5,7 @@ from src.utils.librairies import *
 
 class Simulation:
     def __init__(self):
-        self.speed = 10
+        self.speed = 1
         self.fixedDeltaTime = 1 / self.speed
         self.accumulator = 0
         self.run = False
@@ -19,8 +19,17 @@ class Simulation:
         self.NextPlacing = set()
         self.NextDeleting = set()
 
+        self.processedCells = set()
         self.StartNextStep()
+        
     
+    def StartNextStep(self):
+        self.UpdatePlacementsDeletions()
+        self.lastProcessed = -1
+        self.population = len(self.grid)
+        self.gridList = list(self.grid.keys())
+        self.processedCells.clear()
+
     def Update(self, dt):
         if not self.run:
             return
@@ -28,20 +37,14 @@ class Simulation:
         diff = self.fixedDeltaTime - self.accumulator
         if dt < diff:
             percentage = dt/diff
-            updates = int((self.cellsToProcess - self.lastProcessed) * percentage) + 1
-            self.UpdatePartialStep(min(self.cellsToProcess - 1, self.lastProcessed + updates))
+            updates = int((self.population - self.lastProcessed) * percentage) + 1
+            self.UpdatePartialStep(min(self.population - 1, self.lastProcessed + updates))
 
         self.accumulator += dt
         while self.accumulator > self.fixedDeltaTime:
-            self.UpdatePartialStep(self.cellsToProcess - 1)
+            self.UpdatePartialStep(self.population - 1)
             self.StartNextStep()
             self.accumulator -= self.fixedDeltaTime
-
-    def StartNextStep(self):
-        self.lastProcessed = -1
-        self.activeCells = list(self.GetActiveCells())
-        self.cellsToProcess = len(self.activeCells)
-        self.UpdatePlacementsDeletions()
 
     def UpdatePartialStep(self, end):
         if end <= self.lastProcessed:
@@ -49,28 +52,24 @@ class Simulation:
         i = self.lastProcessed
         while i < end:
             i = i + 1
-            cell = self.activeCells[i]
-            for rule in self.rules:
-                result = rule.execute(cell, self)
-                if result == 0:
-                    self.NextDeleting.add(cell)
-                elif result == 1:
-                    self.NextPlacing.add(cell)
+            cx, cy = self.gridList[i]
+            for x in range(cx - 1, cx + 2):
+                for y in range(cy - 1, cy + 2):
+                    self.processCell((x, y))
 
         self.lastProcessed = i
 
-
-
-
-    def ClassicUpdate(self, dt):
-        if not self.run:
+    def processCell(self, cell):
+        if cell in self.processedCells:
             return
         
-        self.accumulator += dt
-        while self.accumulator > self.fixedDeltaTime:
-            self.UpdateSimulationStep()
-            self.accumulator -= self.fixedDeltaTime
-
+        self.processedCells.add(cell)
+        for rule in self.rules:
+            result = rule.execute(cell, self)
+            if result == 0:
+                self.NextDeleting.add(cell)
+            elif result == 1:
+                self.NextPlacing.add(cell)
 
     def UpdateSimulationStep(self):
         activeCells = self.GetActiveCells()
@@ -167,21 +166,5 @@ class Simulation:
         return self.run == False
     
     
-        
-        
 
 
-"""
-cells = {
-(0, 1) : 0, (4, 1) : 1, (1, 1) : 1, (0, 2) : 1,
-(0, 8) : 1, (8, 7) : 0, (14, 5) : 1, (0, 0) : 1
-(1, 7) : 1, (9, 11) : 1, (0, 4) : 1, (3, 3) : 0
-}
-dyingGrid = {
-(0, 1) : 0, (4, 1) : 3, (1, 1) : 3, (0, 2) : 3,
-(0, 8) : 3, (8, 7) : 2, (14, 5) : 3, (0, 0) : 3
-(1, 7) : 3, (9, 11) : 3, (0, 4) : 3, (3, 3) : 1
-}
-
-
-"""

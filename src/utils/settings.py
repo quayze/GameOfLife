@@ -8,6 +8,8 @@ COLORS = [(0, 0, 0), (255, 255, 255),
           (255, 255, 0), (0, 255, 255), (255, 0, 255),
           (255, 80, 0), (0, 255, 100), (100, 0, 200)]
 
+TEXT_FONT = 'assets/fonts/FreakyFont.otf'
+
 class CameraSettings:
     MAXZOOM = 5000
     MINZOOM = 0.01

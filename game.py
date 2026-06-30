@@ -6,6 +6,8 @@ from src.managers.InputHandler import InputHandler
 from src.managers.ActionsManager import ActionsManager
 from src.managers.Camera import Camera
 
+from src.UI.infoMenu import InfoMenu
+
 class Game:
 
     def __init__(self):
@@ -23,8 +25,10 @@ class Game:
         self.actionsManager = ActionsManager(self.mouseHandler, self.inputHandler)
         self.camera = Camera(WIDTH, HEIGHT, self.simulation, 1, (0, 0), self.mouseHandler)
         
+        self.infoMenu = InfoMenu(self.simulation)
 
-
+        #for i in range(1000000):
+        #    self.simulation.FlipSquare((random.randint(0, 1000), random.randint(0, 1000)))
 
 
         
@@ -64,14 +68,13 @@ class Game:
             self.simulation.Update(self.deltaTime)
             self.camera.Update(self.deltaTime)
             self.camera.Render(self.screen)
-                
+            self.infoMenu.Draw(self.screen)
                 
 
         
             resized_screen = pygame.transform.scale(self.screen, (window_width, window_height))
             self.display.blit(resized_screen, (0, 0))
-            pygame.display.set_caption('FPS : ' + str(int(self.clock.get_fps())) + ' UPDATES : ' + str(self.simulation.speed) + ' ZOOM : ' + str(self.camera.zoom) + ' PAUSED : ' \
-                                       + str(not self.simulation.run) + '   [CURRENTLY PROCESSING : ' + str(self.simulation.lastProcessed) + '/'+str(self.simulation.cellsToProcess) + ']')
+            pygame.display.set_caption('FPS : ' + str(int(self.clock.get_fps())))
             pygame.display.flip()
 
 
@@ -88,10 +91,10 @@ class Game:
                     self.simulation.FlipSquare((pos[0] + i, pos[1] + j))
 
         if self.actionsManager.getAction('SpeedUp'):
-            self.simulation.speedUp(1)
+            self.simulation.speedUp(0.1)
 
         if self.actionsManager.getAction('SpeedDown'):
-            self.simulation.speedDown(1)
+            self.simulation.speedDown(0.1)
 
         if self.actionsManager.getAction('Pause'):
             if self.simulation.isPaused():
@@ -120,13 +123,6 @@ class Game:
         if self.actionsManager.getAction('Right'):
             movX += 1
         self.camera.Move((movX, movY), 1000)
-
-
-
-
-
-
-
 
 
     def get_fps(self):

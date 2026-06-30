@@ -1,8 +1,10 @@
 from src.utils.librairies import *
+from src.utils.settings import *
 
 
 data = {}
 images = {}
+fonts = {}
 
 def load_data(file, path = 'data/'):
     global data
@@ -26,6 +28,12 @@ def load_image(image_name, image_path : str):
         image = pygame.image.load('assets/textures/' + image_path).convert_alpha()
         images[image_name] = image
     return images[image_name]
+
+def load_font(size):
+    """Récupère la police d'écriture"""
+    if size not in fonts:
+        fonts[size] = pygame.font.Font(TEXT_FONT, size)
+    return fonts[size]
 
 def rand(value, int_mode=False):
     if not type(value) is tuple:
@@ -86,3 +94,13 @@ def getFrame(sprite_sheet, width, height, frame_x = 0, frame_y = 0):
     image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
     image.blit(sprite_sheet, (0, 0), ((frame_x* width), (frame_y* height), width, height))
     return image
+
+def drawText(surface, text, text_size, pos, text_color = (255, 255, 255), alignment = 'center', angle = 0):
+    font = load_font(int(text_size))
+    text_surface = font.render(str(text), True, text_color)
+
+    if angle != 0:
+        text_surface = pygame.transform.rotate(text_surface, angle)
+
+    text_rect = text_surface.get_rect(**{alignment: pos})
+    surface.blit(text_surface, text_rect)
